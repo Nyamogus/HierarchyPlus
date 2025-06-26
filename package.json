@@ -1,0 +1,19 @@
+{
+  "name": "com.dreadscripts.hierarchyplus",
+  "displayName": "DreadScripts - HierarchyPlus",
+  "version": "1.3.0",
+  "description": "A general improvement to the unity hierarchy such as component icons, guide lines, row coloring and settings for customization.",
+  "gitDependencies": {},
+  "vpmDependencies": {},
+  "author": {
+    "name": "Dreadrith",
+    "email": "dreadscripts@gmail.com",
+    "url": "https://www.dreadrith.com"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {},
+  "type": "tool",
+  "unity": "2019.4",
+  "url": "https://github.com/Dreadrith/HierarchyPlus/releases/download/v1.3.0/HierarchyPlus_v1.3.0_VPM.zip",
+  "unityPackage": "https://github.com/Dreadrith/HierarchyPlus/releases/download/v1.3.0/HierarchyPlus_v1.3.0.unitypackage"
+}
