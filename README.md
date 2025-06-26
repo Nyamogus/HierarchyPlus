@@ -3,6 +3,8 @@ A general improvement to the Unity hierarchy window such as component icons, gui
 
 Originally by @Dreadrith
 
+Forked from the current continuation of the project cuz I wanna contribute since it improved my workflow a lot
+
 ### [Download From Here](https://vpm.dreadscripts.com/)
 ![](https://i.imgur.com/w1uNB7O.gif)
 ## Features
