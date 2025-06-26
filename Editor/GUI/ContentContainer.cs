@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace DreadScripts.HierarchyPlus
+namespace Rainy.HierarchyPlus
 {
 	internal class ContentContainer
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace DreadScripts.HierarchyPlus
+namespace Rainy.HierarchyPlus
 {
 	internal sealed class IndentScope : IDisposable
 	{

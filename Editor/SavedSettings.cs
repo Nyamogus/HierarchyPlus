@@ -6,10 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
-using static DreadScripts.HierarchyPlus.StylesContainer;
-using static DreadScripts.HierarchyPlus.ContentContainer;
+using static Rainy.HierarchyPlus.StylesContainer;
+using static Rainy.HierarchyPlus.ContentContainer;
 
-namespace DreadScripts.HierarchyPlus
+namespace Rainy.HierarchyPlus
 {
 	[Serializable]
 

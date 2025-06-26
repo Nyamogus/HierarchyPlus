@@ -1,5 +1,5 @@
 {
-    "name": "com.dreadscripts.hierarchyplus.Editor",
+    "name": "com.rainy.hierarchyplus.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"

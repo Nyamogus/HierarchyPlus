@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace DreadScripts.HierarchyPlus
+namespace Rainy.HierarchyPlus
 {
 	[Serializable]
 	internal class RegexComparison

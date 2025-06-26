@@ -1,5 +1,8 @@
 # HierarchyPlus
 A general improvement to the Unity hierarchy window such as component icons, guide lines, row coloring and settings for customization.
+
+Originally by @Dreadrith
+
 ### [Download From Here](https://vpm.dreadscripts.com/)
 ![](https://i.imgur.com/w1uNB7O.gif)
 ## Features
@@ -17,14 +20,15 @@ You can change or add your own icons for components. Here's how to do it:
 1- Hover over the icon of the component whose icon you want to change.  
 ![](https://i.imgur.com/if4bi2P.png)
 
-2- Find the CustomIcons folder under `Packages > DreadTools - HierarchyPlus > CustomIcons`  
+2- Find the CustomIcons folder under `Packages > Tools - HierarchyPlus > CustomIcons`  
 ![](https://i.imgur.com/xMjNENk.png)
 
 3- Add your icon into that folder and give it the same name as the component that it belongs to.  
 ![](https://i.imgur.com/TCPyfY1.png)|![](https://i.imgur.com/QzU3D7c.png)
 -|-
 
-4- You may have to refresh the Icons to see the effect immediately. Find HierarchyPlus settings window under `DreadTools > HierarchyPlus`, and click `Refresh Icons`
+4- You may have to refresh the Icons to see the effect immediately. Find HierarchyPlus settings window under `Tools > HierarchyPlus`, and click `Refresh Icons`
 
 ### Thank you
-If you enjoy HierarchyPlus, please consider [supporting me ♡](https://ko-fi.com/Dreadrith) or rating it on [Gumroad](https://dreadrith.gumroad.com/l/HierarchyPlus)!
+
+ 💞 to Dreadrith for their work in originally creating this script, and includng a permissive license

@@ -6,10 +6,10 @@ using System.Reflection;
 using Object = UnityEngine.Object;
 using System.IO;
 using System.Linq;
-using static DreadScripts.HierarchyPlus.SavedSettings;
-using static DreadScripts.HierarchyPlus.StylesContainer;
+using static Rainy.HierarchyPlus.SavedSettings;
+using static Rainy.HierarchyPlus.StylesContainer;
 
-namespace DreadScripts.HierarchyPlus
+namespace Rainy.HierarchyPlus
 {
     public class HierarchyPlus : EditorWindow
     {
@@ -53,7 +53,7 @@ namespace DreadScripts.HierarchyPlus
         #endregion
         
         #region Window
-        [MenuItem("DreadTools/HierarchyPlus", false, 366)]
+        [MenuItem("Tools/HierarchyPlus", false, 366)]
         private static void OpenSettings()
 		{
 			GetWindow<HierarchyPlus>($"{PRODUCT_NAME} Settings");
@@ -253,7 +253,7 @@ namespace DreadScripts.HierarchyPlus
         {
 	        using (new ColoredScope(ColoredScope.ColoringType.BG, Color.clear))
 	        {
-		        if (GUILayout.Button(new GUIContent("Made By @Dreadrith ♡", "https://dreadrith.com/links"), Styles.faintLinkLabel))
+		        if (GUILayout.Button(new GUIContent("Originally made By @Dreadrith ♡", "https://dreadrith.com/links"), Styles.faintLinkLabel))
 			        Application.OpenURL("https://dreadrith.com/links");
 		        w_UnderlineLastRectOnHover();
 	        }

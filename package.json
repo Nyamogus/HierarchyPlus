@@ -1,14 +1,14 @@
 {
-  "name": "com.dreadscripts.hierarchyplus",
-  "displayName": "DreadScripts - HierarchyPlus",
+  "name": "com.rainy.hierarchyplus",
+  "displayName": "Rainy - HierarchyPlus",
   "version": "1.3.0",
   "description": "A general improvement to the unity hierarchy such as component icons, guide lines, row coloring and settings for customization.",
   "gitDependencies": {},
   "vpmDependencies": {},
   "author": {
-    "name": "Dreadrith",
-    "email": "dreadscripts@gmail.com",
-    "url": "https://www.dreadrith.com"
+    "name": "Rainy",
+    "email": "hello@rainy.fans",
+    "url": "https://github.com/rainy-aa"
   },
   "legacyFolders": {},
   "legacyFiles": {},
