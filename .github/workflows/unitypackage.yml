@@ -17,26 +17,37 @@ jobs:
         with:
           lfs: true
 
-      - name: Prepare package structure
+      - name: Prepare package structures
         run: |
-          # Structure for Unity packages path
-          PACKAGE_PATH="Packages/com.rainy.${{ github.event.repository.name }}"
-          mkdir -p "$PACKAGE_PATH"
-          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='build' . "$PACKAGE_PATH/"
+          PACKAGES_PATH="Packages/com.rainy.${{ github.event.repository.name }}"
+          ASSETS_PATH="Assets/_rainy/${{ github.event.repository.name }}"
           
-          # Remove unneeded stuff for package
-          rm -f "$PACKAGE_PATH/package.json" "$PACKAGE_PATH/package.json.meta"
-          rm -f "$PACKAGE_PATH/README.md" "$PACKAGE_PATH/README.md.meta"
-          rm -f "$PACKAGE_PATH/readme.md" "$PACKAGE_PATH/readme.md.meta"
+          mkdir -p "$PACKAGES_PATH"
+          mkdir -p "$ASSETS_PATH"
+          
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='Assets' --exclude='build' . "$PACKAGES_PATH/"
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='Assets' --exclude='build' . "$ASSETS_PATH/"
+          
+          rm -f "$PACKAGES_PATH/package.json" "$PACKAGES_PATH/package.json.meta"
+          rm -f "$PACKAGES_PATH/README.md" "$PACKAGES_PATH/README.md.meta"
+          rm -f "$PACKAGES_PATH/readme.md" "$PACKAGES_PATH/readme.md.meta"
+          
+          rm -f "$ASSETS_PATH/package.json" "$ASSETS_PATH/package.json.meta"
+          rm -f "$ASSETS_PATH/README.md" "$ASSETS_PATH/README.md.meta"
+          rm -f "$ASSETS_PATH/readme.md" "$ASSETS_PATH/readme.md.meta"
 
-      - name: Generate meta file list
+      - name: Generate meta file lists
         run: |
-          # Find all .meta files in the new structure
-          find Packages/ -name "*.meta" -type f > metaList
+          find Packages/ -name "*.meta" -type f > packagesMetaList
+          find Assets/ -name "*.meta" -type f > assetsMetaList
           
-          echo "=== Files to be packaged ==="
-          cat metaList
-          echo "=== Total files: $(wc -l < metaList) ==="
+          echo "=== Packages files to be packaged ==="
+          cat packagesMetaList
+          echo "=== Total packages files: $(wc -l < packagesMetaList) ==="
+          
+          echo "=== Assets files to be packaged ==="
+          cat assetsMetaList
+          echo "=== Total assets files: $(wc -l < assetsMetaList) ==="
 
       - name: Create output directory
         run: mkdir -p build
@@ -44,21 +55,27 @@ jobs:
       - name: Create Unity Package
         uses: pCYSl5EDgo/create-unitypackage@master
         with:
-          package-path: 'build/${{ github.event.repository.name }}-${{ github.ref_name }}.unitypackage'
-          include-files: metaList
+          package-path: 'build/${{ github.event.repository.name }}-${{ github.ref_name }}-Assets.unitypackage'
+          include-files: assetsMetaList
 
-      - name: Upload package artifact
+      - name: Create VPM ZIP
+        run: |
+          cd Packages
+          zip -r "../build/${{ github.event.repository.name }}-${{ github.ref_name }}-VPM.zip" .
+          cd ..
+
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: unity-package-${{ github.ref_name }}
-          path: build/*.unitypackage
+          name: unity-packages-${{ github.ref_name }}
+          path: build/*
           retention-days: 30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/*.unitypackage
+          files: build/*
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
