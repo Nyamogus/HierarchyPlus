@@ -31,4 +31,4 @@ You can change or add your own icons for components. Here's how to do it:
 
 ### Thank you
 
- 💞 to Dreadrith for their work in originally creating this script, and includng a permissive license
+ 💞 to Dreadrith for their work in originally creating this script, and including a permissive license

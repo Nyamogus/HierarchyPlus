@@ -17,9 +17,8 @@ jobs:
 
       - name: Generate meta file list
         run: |
-          # Create metaList file excluding stuff I don't care about 
-          find Assets/ -name "*.meta" | grep -v -E "(package\.json\.meta|readme\.md\.meta|README\.md\.meta)" > metaList
-          
+          # Exclude the files you specified and .github folder
+          find . -type d \( -name ".git" -o -name ".github" -o -name ".idea" \) -prune -o -name "*.meta" -type f -print | grep -v -E "(package\.json\.meta|readme\.md\.meta|README\.md\.meta)" | sed 's|^\./||' > metaList          
           echo "=== Files to be packaged ==="
           cat metaList
           echo "=== Total files: $(wc -l < metaList) ==="
