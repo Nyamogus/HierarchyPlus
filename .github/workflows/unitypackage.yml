@@ -4,27 +4,50 @@ on:
   push:
     tags:
       - 'v*'  # v1.0.0, v2.1.3 ...
-      
-permissions:
-  contents: write 
 
 jobs:
   build-package:
     name: Build Unity Package
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Generate meta file list
+      - name: Prepare package structures
         run: |
-          # Exclude the files you specified and .github folder
-          find . -type d \( -name ".git" -o -name ".github" -o -name ".idea" \) -prune -o -name "*.meta" -type f -print | grep -v -E "(package\.json\.meta|readme\.md\.meta|README\.md\.meta)" | sed 's|^\./||' > metaList          
-          echo "=== Files to be packaged ==="
-          cat metaList
-          echo "=== Total files: $(wc -l < metaList) ==="
+          PACKAGES_PATH="Packages/com.rainy.${{ github.event.repository.name }}"
+          ASSETS_PATH="Assets/_rainy/${{ github.event.repository.name }}"
+          
+          mkdir -p "$PACKAGES_PATH"
+          mkdir -p "$ASSETS_PATH"
+          
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='Assets' --exclude='build' . "$PACKAGES_PATH/"
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='Assets' --exclude='build' . "$ASSETS_PATH/"
+          
+          rm -f "$PACKAGES_PATH/package.json" "$PACKAGES_PATH/package.json.meta"
+          rm -f "$PACKAGES_PATH/README.md" "$PACKAGES_PATH/README.md.meta"
+          rm -f "$PACKAGES_PATH/readme.md" "$PACKAGES_PATH/readme.md.meta"
+          
+          rm -f "$ASSETS_PATH/package.json" "$ASSETS_PATH/package.json.meta"
+          rm -f "$ASSETS_PATH/README.md" "$ASSETS_PATH/README.md.meta"
+          rm -f "$ASSETS_PATH/readme.md" "$ASSETS_PATH/readme.md.meta"
+
+      - name: Generate meta file lists
+        run: |
+          find Packages/ -name "*.meta" -type f > packagesMetaList
+          find Assets/ -name "*.meta" -type f > assetsMetaList
+          
+          echo "=== Packages files to be packaged ==="
+          cat packagesMetaList
+          echo "=== Total packages files: $(wc -l < packagesMetaList) ==="
+          
+          echo "=== Assets files to be packaged ==="
+          cat assetsMetaList
+          echo "=== Total assets files: $(wc -l < assetsMetaList) ==="
 
       - name: Create output directory
         run: mkdir -p build
@@ -32,21 +55,27 @@ jobs:
       - name: Create Unity Package
         uses: pCYSl5EDgo/create-unitypackage@master
         with:
-          package-path: 'build/${{ github.event.repository.name }}-${{ github.ref_name }}.unitypackage'
-          include-files: metaList
+          package-path: 'build/${{ github.event.repository.name }}-${{ github.ref_name }}-Assets.unitypackage'
+          include-files: assetsMetaList
 
-      - name: Upload package artifact
+      - name: Create VPM ZIP
+        run: |
+          cd Packages
+          zip -r "../build/${{ github.event.repository.name }}-${{ github.ref_name }}-VPM.zip" .
+          cd ..
+
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: unity-package-${{ github.ref_name }}
-          path: build/*.unitypackage
+          name: unity-packages-${{ github.ref_name }}
+          path: build/*
           retention-days: 30
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/*.unitypackage
+          files: build/*
           name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
