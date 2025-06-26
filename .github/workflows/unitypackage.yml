@@ -4,24 +4,36 @@ on:
   push:
     tags:
       - 'v*'  # v1.0.0, v2.1.3 ...
-      
-permissions:
-  contents: write 
 
 jobs:
   build-package:
     name: Build Unity Package
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: true
 
+      - name: Prepare package structure
+        run: |
+          # Structure for Unity packages path
+          PACKAGE_PATH="Packages/com.rainy.${{ github.event.repository.name }}"
+          mkdir -p "$PACKAGE_PATH"
+          rsync -av --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='Packages' --exclude='build' . "$PACKAGE_PATH/"
+          
+          # Remove unneeded stuff for package
+          rm -f "$PACKAGE_PATH/package.json" "$PACKAGE_PATH/package.json.meta"
+          rm -f "$PACKAGE_PATH/README.md" "$PACKAGE_PATH/README.md.meta"
+          rm -f "$PACKAGE_PATH/readme.md" "$PACKAGE_PATH/readme.md.meta"
+
       - name: Generate meta file list
         run: |
-          # Exclude the files you specified and .github folder
-          find . -type d \( -name ".git" -o -name ".github" -o -name ".idea" \) -prune -o -name "*.meta" -type f -print | grep -v -E "(package\.json\.meta|readme\.md\.meta|README\.md\.meta)" | sed 's|^\./||' > metaList          
+          # Find all .meta files in the new structure
+          find Packages/ -name "*.meta" -type f > metaList
+          
           echo "=== Files to be packaged ==="
           cat metaList
           echo "=== Total files: $(wc -l < metaList) ==="
