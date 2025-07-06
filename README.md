@@ -1,6 +1,8 @@
 # HierarchyPlus
 A general improvement to the Unity hierarchy window such as component icons, guide lines, row coloring and settings for customization.
 
+I plan to continue developing it since the OG is RIP
+
 Originally by @Dreadrith
 
 ### [Download From Here](https://vpm.dreadscripts.com/)
