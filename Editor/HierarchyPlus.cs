@@ -27,6 +27,10 @@ namespace Rainy.HierarchyPlus
         private static readonly Texture2D[] defaultTextures = new Texture2D[3];
         private static readonly HashSet<Object> dragToggledObjects = new HashSet<Object>();
         private static bool dragToggleNewState;
+        private static bool iconsLoadedSuccessfully = false;
+        private static bool retryScheduled = false;
+        private static int iconLoadRetryCount = 0;
+        private const int MAX_ICON_LOAD_RETRIES = 3;
 
         private static MethodInfo GetGameObjectIconMethod;
         private static GUIContent gameObjectContent;
@@ -69,7 +73,10 @@ namespace Rainy.HierarchyPlus
 				settings.enabled.DrawField("HierarchyPlus Enabled");
 				GUILayout.FlexibleSpace();
 				if (GUILayout.Button(new GUIContent("Refresh Icons", "Use this to update the icons in the hierarchy window."), GUI.skin.button, GUILayout.ExpandWidth(false))) 
+				{
+					iconLoadRetryCount = 0; // Reset retry count for manual refresh
 					InitializeAll();
+				}
 				MakeRectLinkCursor();
 			}
 
@@ -680,6 +687,17 @@ namespace Rainy.HierarchyPlus
         private static GUIContent GetIcon(Component c)
         {
             if (c == null) return missingScriptContent;
+            
+            // Auto-retry loading icons if they failed during startup (with retry limit)
+            if (!iconsLoadedSuccessfully && customIconCache.Count == 0 && !retryScheduled && iconLoadRetryCount < MAX_ICON_LOAD_RETRIES)
+            {
+                retryScheduled = true;
+                EditorApplication.delayCall += () => {
+                    InitializeAll();
+                    retryScheduled = false;
+                };
+            }
+            
             Type type = c.GetType();
             if (customIconCache.TryGetValue(type.Name, out var contentIcon)) return contentIcon;
             if (iconCache.TryGetValue(type, out contentIcon)) return contentIcon;
@@ -794,6 +812,14 @@ namespace Rainy.HierarchyPlus
             EditorApplication.hierarchyWindowItemOnGUI = OnHierarchyItemGUI + EditorApplication.hierarchyWindowItemOnGUI;
             EditorApplication.update -= OnCustomUpdate;
             EditorApplication.update += OnCustomUpdate;
+            
+            // Fallback: Try to reload icons after a short delay if they failed to load initially
+            if (!iconsLoadedSuccessfully)
+            {
+                EditorApplication.delayCall += () => {
+                    EditorApplication.delayCall += () => InitializeAll(); // Double delay to ensure AssetDatabase is ready
+                };
+            }
         }
         
         private static void OnCustomUpdate() { ranOnceThisFrame = false; }
@@ -801,6 +827,7 @@ namespace Rainy.HierarchyPlus
         private static void InitializeAll()
         {
 	        iconCache.Clear();
+	        retryScheduled = false;
             InitializeIconFolderPath();
             InitializeCustomIcons();
             InitializeSpecialIcons();
@@ -849,14 +876,45 @@ namespace Rainy.HierarchyPlus
         private static void InitializeCustomIcons()
         {            
             customIconCache.Clear();
-            if (string.IsNullOrWhiteSpace(iconFolderPath)) return;
-            var paths = Directory.GetFiles(iconFolderPath, "*", SearchOption.AllDirectories).Where(p => !p.EndsWith(".meta"));
-            foreach (var p in paths)
+            iconsLoadedSuccessfully = false;
+            iconLoadRetryCount++;
+            
+            if (string.IsNullOrWhiteSpace(iconFolderPath)) 
             {
-	            Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>(p);
-                if (icon != null) customIconCache.Add(icon.name, new GUIContent(icon, icon.name));
+                iconsLoadedSuccessfully = true; // No custom icons to load, so consider it successful
+                return;
             }
             
+            var paths = Directory.GetFiles(iconFolderPath, "*", SearchOption.AllDirectories).Where(p => !p.EndsWith(".meta"));
+            int totalIcons = 0;
+            int loadedIcons = 0;
+            
+            foreach (var p in paths)
+            {
+                totalIcons++;
+	            Texture2D icon = AssetDatabase.LoadAssetAtPath<Texture2D>(p);
+                if (icon != null) 
+                {
+                    customIconCache.Add(icon.name, new GUIContent(icon, icon.name));
+                    loadedIcons++;
+                }
+            }
+            
+            // Consider loading successful if we loaded more than half the icons or if there were no icons to load
+            iconsLoadedSuccessfully = totalIcons == 0 || (float)loadedIcons / totalIcons > 0.5f;
+            
+            if (!iconsLoadedSuccessfully)
+            {
+                if (iconLoadRetryCount >= MAX_ICON_LOAD_RETRIES)
+                {
+                    CustomLog($"Custom icon loading failed after {MAX_ICON_LOAD_RETRIES} attempts ({loadedIcons}/{totalIcons} loaded). Falling back to default icons.", CustomLogType.Warning);
+                    iconsLoadedSuccessfully = true; // Stop retrying, accept partial loading
+                }
+                else
+                {
+                    CustomLog($"Custom icon loading incomplete ({loadedIcons}/{totalIcons} loaded). Will retry automatically (attempt {iconLoadRetryCount}/{MAX_ICON_LOAD_RETRIES}).", CustomLogType.Warning);
+                }
+            }
         }
         #endregion
 
